@@ -11,8 +11,11 @@ public class Tests
     public async Task NeteaseTest()
     {
         var api = new NeteaseAPI();
-        var result = await api.Search("初音未来");
-        TestContext.Out.WriteLine(result[0].ToDebugString());
+        var result = await api.Search("初音未来", page: 1);
+        var song = result[2]!;
+        TestContext.Out.WriteLine(song.ToString());
+        var lyric = await api.GetLyric(song.Id);
+        TestContext.Out.WriteLine(lyric.ToString());
         Assert.IsNotNull(result);
     }
 }
