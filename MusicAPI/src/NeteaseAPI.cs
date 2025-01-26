@@ -5,14 +5,25 @@ using System.Text;
 using System.Text.RegularExpressions;
 
 namespace MusicAPI;
+public class NeteaseEncryptedResult
+{
+	public required string url { get; set; }
+	public required Dictionary<string, string> body { get; set; }
+}
+
 public class NeteaseAPI
 {
+	~NeteaseAPI()
+	{
+		if (HttpClient != null)
+			HttpClient.Dispose();
+	}
+    private HttpClient HttpClient = new();
 
-	public Dictionary<string, string> Headers = new();
 
-	private HttpClient HttpClient = new();
+    public Dictionary<string, string> Headers = new();
 
-	private Dictionary<string, string> GetHeader()
+    private Dictionary<string, string> GetHeaders()
 	{
 		//string cookieString = string.Join("; ", Cookies.Select(cookie => $"{cookie.Key}={cookie.Value}"));
 		Dictionary<string, string> keyValues = new Dictionary<string, string> {
@@ -51,7 +62,8 @@ public class NeteaseAPI
 			};
 		NeteaseEncryptedResult encryptedRequest = NeteaseCrypto.NetEaseAESCBC(apiRequest);
 
-		string? jsonResult = await HttpClient.SendPost(encryptedRequest.url, encryptedRequest.body, GetHeader());
+
+		string? jsonResult = await HttpClient.RequestAsync(HttpMethod.Post, encryptedRequest.url, encryptedRequest.body, GetHeaders());
 		dynamic? json = JsonConvert.DeserializeObject(jsonResult ?? "{}");
 		if (string.IsNullOrWhiteSpace(jsonResult) || json == null)
 			return null;
@@ -102,7 +114,7 @@ public class NeteaseAPI
 			};
 		NeteaseEncryptedResult encryptedRequest = NeteaseCrypto.NetEaseAESCBC(apiRequest);
 
-		string? jsonReasult = await HttpClient.SendPost(encryptedRequest.url, encryptedRequest.body, GetHeader());
+		string? jsonReasult = await HttpClient.RequestAsync(HttpMethod.Post, encryptedRequest.url, encryptedRequest.body, GetHeaders());
 		dynamic? json = JsonConvert.DeserializeObject(jsonReasult ?? "{}");
 		if (string.IsNullOrWhiteSpace(jsonReasult) || json == null)
 			return null;
@@ -142,7 +154,7 @@ public class NeteaseAPI
 			};
 		NeteaseEncryptedResult encryptedRequest = NeteaseCrypto.NetEaseAESCBC(apiRequest);
 
-		string? jsonResult = await HttpClient.SendPost(encryptedRequest.url, encryptedRequest.body, GetHeader());
+		string? jsonResult = await HttpClient.RequestAsync(HttpMethod.Post, encryptedRequest.url, encryptedRequest.body, GetHeaders());
 		dynamic? json = JsonConvert.DeserializeObject(jsonResult ?? "{}");
 		if (string.IsNullOrWhiteSpace(jsonResult) || json == null)
 			return null;
@@ -152,7 +164,7 @@ public class NeteaseAPI
 		{
 			Url = data!.url,
 			Type = data!.type,
-			Br = (int)(json!.data!.br / 1000.0),
+			Br = (int)(data!.br / 1000.0),
 			Size = data!.size,
 			Duration = (double)(data!.time / 1000.0)
 		};
@@ -174,7 +186,8 @@ public class NeteaseAPI
 			};
 		NeteaseEncryptedResult encryptedRequest = NeteaseCrypto.NetEaseAESCBC(apiRequest);
 
-		string? jsonResult = await HttpClient.SendPost(encryptedRequest.url, encryptedRequest.body, GetHeader());
+		string? jsonResult = await HttpClient.RequestAsync(HttpMethod.Post, encryptedRequest.url, encryptedRequest.body, GetHeaders());
+		Console.WriteLine(jsonResult);
 		dynamic? json = JsonConvert.DeserializeObject(jsonResult ?? "{}");
 		if (string.IsNullOrWhiteSpace(jsonResult) || json == null)
 			return null;

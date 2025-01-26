@@ -8,22 +8,21 @@ namespace MusicAPI;
 
 public static class HttpManager
 {
-	public static async Task<string?> SendPost(this HttpClient client, string? url, Dictionary<string, string>? parameters, Dictionary<string, string> cookie)
+	public static async Task<string?> RequestAsync(this HttpClient client, HttpMethod method, string? url, Dictionary<string, string>? parameters, Dictionary<string, string> headers)
 	{
 		if (parameters == null || parameters.Count == 0)
-		{
 			return string.Empty;
-		}
+
 		var content = new FormUrlEncodedContent((IEnumerable<KeyValuePair<string, string>>)parameters);
 
 		if (string.IsNullOrWhiteSpace(url))
 			return string.Empty;
 
 		string responseBody = string.Empty;
-		using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, url))
+		using (HttpRequestMessage request = new HttpRequestMessage(method, url))
 		{
 			request.Content = content;
-			foreach (var header in cookie)
+			foreach (var header in headers)
 			{
 				//Console.WriteLine($"{header.Key}: {header.Value}");
 				request.Headers.TryAddWithoutValidation(header.Key, header.Value);
