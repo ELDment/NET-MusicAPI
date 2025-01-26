@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace MusicAPI;
 public class TencentAPI {
@@ -36,7 +37,7 @@ public class TencentAPI {
 	}
 
 	public async Task<List<Song>?> Search(string keyword, int type = 1, int limit = 30, int page = 1) {
-		Dictionary<string, string> apiRequest = new Dictionary<string, string> {
+		Dictionary<string, string> requestParams = new Dictionary<string, string> {
 						{ "w", keyword },
 						{ "p", page.ToString() },
 						{ "n", limit.ToString() },
@@ -47,43 +48,60 @@ public class TencentAPI {
 						{ "format", "json" }
 		};
 
-
-		string? jsonResult = await HttpClient.RequestAsync(HttpMethod.Get, "https://c.y.qq.com/soso/fcgi-bin/client_search_cp", apiRequest, GetHeaders());
+		string? jsonResult = await HttpClient.RequestAsync("GET", "https://c.y.qq.com/soso/fcgi-bin/client_search_cp", requestParams, GetHeaders());
 		
+		//Console.WriteLine(jsonResult);
+		dynamic? json = JsonConvert.DeserializeObject(jsonResult ?? "{}");
+		if (string.IsNullOrWhiteSpace(jsonResult) || json == null)
+			return null;
+
+		//Console.WriteLine("1");
+		List<Song> searchResult = new();
+		foreach (dynamic? jsonData in json!.data!.song!.list) {
+			if (jsonData == null)
+				continue;
+			var artists = new List<string>();
+
+			foreach (dynamic? artist in jsonData!.singer) {
+				if (artist == null)
+					continue;
+				artists.Add((string)artist.name);
+			}
+
+			Song singleResult = new Song
+			{
+				Id = jsonData!.mid,
+				Name = jsonData!.name,
+				Artists = artists,
+				AlbumName = jsonData!.album!.title,
+				LyricId = jsonData!.mid
+			};
+			searchResult.Add(singleResult);
+		};
+
+		return searchResult;
+
+	}
+
+
+	public async Task<Lyric?> GetLyric(string id) {
+		Dictionary<string, string> requestParams = new Dictionary<string, string> {
+				{ "format", "json" },
+				{ "platform", "yqq" },
+				{ "songid", id }
+		};
+		
+		string? jsonResult = await HttpClient.RequestAsync("GET", "https://c.y.qq.com/v8/fcg-bin/fcg_play_single_song.fcg", requestParams, GetHeaders());
 		Console.WriteLine(jsonResult);
 		//dynamic? json = JsonConvert.DeserializeObject(jsonResult ?? "{}");
 		//if (string.IsNullOrWhiteSpace(jsonResult) || json == null)
-		//    return null;
-
-		//List<Song> searchResult = new();
-		//foreach (dynamic? jsonData in json!.result!.songs) {
-		//    if (jsonData == null)
-		//        continue;
-		//    var artists = new List<string>();
-
-		//    foreach (dynamic? artist in jsonData!.ar) {
-		//        artists.Add((string)artist.name);
-		//    }
-		//    Song singleResult = new Song
-		//    {
-		//        Id = jsonData!.id,
-		//        Name = jsonData!.name,
-		//        Artists = artists,
-		//        AlbumName = jsonData!.al!.name,
-		//        PicId = jsonData!.al!.pic,
-		//        LyricId = jsonData!.id
-		//    };
-		//    searchResult.Add(singleResult);
-		//}
-		//;
-
-		//// singleResult["id"] = jsonData!.id;
-		//// singleResult["name"] = jsonData!.name;
-		//// singleResult["artist"] = artistResult;
-		//// singleResult["album"] = jsonData!.al!.name;
-		//// singleResult["pic_id"] = jsonData!.al!.pic;
-		//// singleResult["url_id"] = jsonData!.id;
-		//// singleResult["lrc_id"] = jsonData!.id;
+		//	return null;
+		//Regex regex = new Regex(@"\[(\d+:\d+.*)\]", RegexOptions.Compiled);
+		//return new Lyric {
+		//	HasTimeInfo = regex.IsMatch(json!.lrc!.lyric!.ToString()),
+		//	OriginalLyric = json!.lrc!.lyric!.ToString(),
+		//	TranslatedLyric = json!.tlyric?.lyric?.ToString() ?? string.Empty
+		//};
 
 		return null;
 	}

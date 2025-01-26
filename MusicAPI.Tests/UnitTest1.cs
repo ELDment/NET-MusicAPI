@@ -11,38 +11,36 @@ public class Tests
     }
 
     [Test]
-    public async Task NeteaseTest()
+    public async Task Test()
     {
-        Dictionary<string, string> headers1 = new();
-        //var api = new NeteaseAPI();
-        var api = new TencentAPI();
-
-        //headers1.Add("Accept", "NNNNNNNNNNNNNNNNNNNNONE");
-        //headers1.Add("addition", "NONE");
-        api.Headers = headers1;
-
-        //headers.Clear();
-        //headers = api.GetHeaders();
         
+        var api = new NeteaseAPI();
+        //var api = new TencentAPI();
 
-        var result = await api.Search("secret base", page: 1);
-        //var song = result[0]!;
-        //Console.WriteLine(result);
-        
-        //var lyric = await api.GetLyric(song.Id);
-        //Console.WriteLine(lyric);
-        //Assert.IsNotNull(result);
+        //设置Headers
+        //api.Headers = new Dictionary<string, string> { { "Addition", "12345" } /*, { "Cookie", "Yours" }*/ };
+
+        //搜索歌曲
+        var search = await api.Search("Avid", limit: 5);
+        var song = search[0]!;
+        Console.WriteLine(song);
+
+        //获取歌曲信息
+        var songInfo = await api.GetSong(song!.Id);
+        Console.WriteLine(songInfo);
+
+        //获取歌曲资源
+        var songResource = await api.GetSongResource(song!.Id);
+        Console.WriteLine(songResource);
+
+        //获取歌词
+        var songLyric = await api.GetLyric(song!.Id);
+        Console.WriteLine(songLyric);
+
+        //获取歌曲头图
+        var songPicture = await api.GetPicture(song!.Id, 520);
+        Console.WriteLine(songPicture);
+
+        return;
     }
-
-    //public void PrintClass(object obj) {
-    //    Type type = typeof(obj);
-
-    //    FieldInfo[] fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance);
-
-    //    foreach (FieldInfo field in fields) {
-    //        Console.WriteLine($"Field Name: {field.Name}, Field Value: {field.GetValue(obj)}");
-    //    }
-
-    //    return;
-    //}
 }

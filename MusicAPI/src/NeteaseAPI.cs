@@ -18,12 +18,12 @@ public class NeteaseAPI
 		if (HttpClient != null)
 			HttpClient.Dispose();
 	}
-    private HttpClient HttpClient = new();
+	private HttpClient HttpClient = new();
 
 
-    public Dictionary<string, string> Headers = new();
+	public Dictionary<string, string> Headers = new();
 
-    private Dictionary<string, string> GetHeaders()
+	private Dictionary<string, string> GetHeaders()
 	{
 		//string cookieString = string.Join("; ", Cookies.Select(cookie => $"{cookie.Key}={cookie.Value}"));
 		Dictionary<string, string> keyValues = new Dictionary<string, string> {
@@ -63,7 +63,7 @@ public class NeteaseAPI
 		NeteaseEncryptedResult encryptedRequest = NeteaseCrypto.NetEaseAESCBC(apiRequest);
 
 
-		string? jsonResult = await HttpClient.RequestAsync(HttpMethod.Post, encryptedRequest.url, encryptedRequest.body, GetHeaders());
+		string? jsonResult = await HttpClient.RequestAsync("POST", encryptedRequest.url, encryptedRequest.body, GetHeaders());
 		dynamic? json = JsonConvert.DeserializeObject(jsonResult ?? "{}");
 		if (string.IsNullOrWhiteSpace(jsonResult) || json == null)
 			return null;
@@ -85,7 +85,6 @@ public class NeteaseAPI
 				Name = jsonData!.name,
 				Artists = artists,
 				AlbumName = jsonData!.al!.name,
-				PicId = jsonData!.al!.pic,
 				LyricId = jsonData!.id
 			};
 			searchResult.Add(singleResult);
@@ -114,7 +113,8 @@ public class NeteaseAPI
 			};
 		NeteaseEncryptedResult encryptedRequest = NeteaseCrypto.NetEaseAESCBC(apiRequest);
 
-		string? jsonReasult = await HttpClient.RequestAsync(HttpMethod.Post, encryptedRequest.url, encryptedRequest.body, GetHeaders());
+		string? jsonReasult = await HttpClient.RequestAsync("POST", encryptedRequest.url, encryptedRequest.body, GetHeaders());
+		//Console.WriteLine(jsonReasult);
 		dynamic? json = JsonConvert.DeserializeObject(jsonReasult ?? "{}");
 		if (string.IsNullOrWhiteSpace(jsonReasult) || json == null)
 			return null;
@@ -125,18 +125,21 @@ public class NeteaseAPI
 				continue;
 
 			List<string> artists = new List<string>();
-			foreach (dynamic? artist in jsonData!.ar)
-			{
-				artists.Add(artist.name);
+
+			foreach (dynamic? artist in jsonData!.ar) {
+				if (artist.name == null)
+					continue;
+				artists.Add((string)artist.name ?? "");
 			}
-			return new Song
-			{
+			
+			string? url = jsonData!.al!.picUrl;
+			return new Song {
 				Id = jsonData!.id,
 				Name = jsonData!.name,
 				Artists = artists,
 				AlbumName = jsonData!.al!.name,
-				PicId = jsonData!.al!.pic,
-				LyricId = jsonData!.id
+				LyricId = jsonData!.id,
+				Picture = string.IsNullOrWhiteSpace(url) ? string.Empty : url
 			};
 		}
 		return null;
@@ -154,7 +157,7 @@ public class NeteaseAPI
 			};
 		NeteaseEncryptedResult encryptedRequest = NeteaseCrypto.NetEaseAESCBC(apiRequest);
 
-		string? jsonResult = await HttpClient.RequestAsync(HttpMethod.Post, encryptedRequest.url, encryptedRequest.body, GetHeaders());
+		string? jsonResult = await HttpClient.RequestAsync("POST", encryptedRequest.url, encryptedRequest.body, GetHeaders());
 		dynamic? json = JsonConvert.DeserializeObject(jsonResult ?? "{}");
 		if (string.IsNullOrWhiteSpace(jsonResult) || json == null)
 			return null;
@@ -186,8 +189,8 @@ public class NeteaseAPI
 			};
 		NeteaseEncryptedResult encryptedRequest = NeteaseCrypto.NetEaseAESCBC(apiRequest);
 
-		string? jsonResult = await HttpClient.RequestAsync(HttpMethod.Post, encryptedRequest.url, encryptedRequest.body, GetHeaders());
-		Console.WriteLine(jsonResult);
+		string? jsonResult = await HttpClient.RequestAsync("POST", encryptedRequest.url, encryptedRequest.body, GetHeaders());
+		//Console.WriteLine(jsonResult);
 		dynamic? json = JsonConvert.DeserializeObject(jsonResult ?? "{}");
 		if (string.IsNullOrWhiteSpace(jsonResult) || json == null)
 			return null;
@@ -198,6 +201,17 @@ public class NeteaseAPI
 			OriginalLyric = json!.lrc!.lyric!.ToString(),
 			TranslatedLyric = json!.tlyric?.lyric?.ToString() ?? string.Empty
 		};
+	}
+
+	public async Task<string?> GetPicture(string id, int px = 400) {
+		Song? songInfo = await GetSong(id);
+		if (songInfo == null)
+			return string.Empty;
+		string? url = songInfo.Picture;
+		if (string.IsNullOrWhiteSpace(url))
+			return string.Empty;
+
+		return $"{url}?param={px}y{px}";
 	}
 }
 

@@ -9,8 +9,8 @@ public record Song
   public required string    Name { get; set; }
   public required List<string> Artists { get; set; }
   public required string    AlbumName { get; set; }
-  public required string    PicId { get; set; }
   public required string    LyricId { get; set; }
+  public string?            Picture { get; set; } = string.Empty;
 }
 
 public record SongResource
