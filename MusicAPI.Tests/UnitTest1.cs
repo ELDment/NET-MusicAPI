@@ -13,31 +13,31 @@ public class Tests
 	[Test]
 	public async Task Test()
 	{
-		//声明平台API实例
+		//澹版槑API瀹炰緥
 		var api = new NeteaseAPI();
 		//var api = new TencentAPI();
 
-		//设置Headers
+		//闇�瑕佸鍔狅紙淇敼锛夌殑Headers
 		api.Headers = new Dictionary<string, string> { { "Addition", "12345" } /*, { "Cookie", "Yours" }*/ };
 
-		//搜索歌曲
+		//鎼滅储闊充箰
 		var search = await api.Search("Avid", limit: 5);
 		var song = search[0]!;
 		Console.WriteLine(song);
 
-		//获取歌曲信息
+		//鑾峰彇闊充箰淇℃伅
 		var songInfo = await api.GetSong(song!.Id);
 		Console.WriteLine(songInfo);
 
-		//获取歌曲资源
+		//鑾峰彇闊充箰璧勬簮
 		var songResource = await api.GetSongResource(song!.Id);
 		Console.WriteLine(songResource);
 
-		//获取歌词
+		//鑾峰彇闊充箰姝岃瘝
 		var songLyric = await api.GetLyric(song!.Id);
 		Console.WriteLine(songLyric);
 
-		//获取歌曲头图
+		//鑾峰彇闊充箰澶村浘
 		var songPicture = await api.GetPicture(song!.Id, 520);
 		Console.WriteLine(songPicture);
 
