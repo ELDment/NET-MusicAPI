@@ -113,10 +113,10 @@ public class NeteaseAPI
 			};
 		NeteaseEncryptedResult encryptedRequest = NeteaseCrypto.NetEaseAESCBC(apiRequest);
 
-		string? jsonReasult = await HttpClient.RequestAsync("POST", encryptedRequest.url, encryptedRequest.body, GetHeaders());
-		//Console.WriteLine(jsonReasult);
-		dynamic? json = JsonConvert.DeserializeObject(jsonReasult ?? "{}");
-		if (string.IsNullOrWhiteSpace(jsonReasult) || json == null)
+		string? jsonResult = await HttpClient.RequestAsync("POST", encryptedRequest.url, encryptedRequest.body, GetHeaders());
+		//Console.WriteLine(jsonResult);
+		dynamic? json = JsonConvert.DeserializeObject(jsonResult ?? "{}");
+		if (string.IsNullOrWhiteSpace(jsonResult) || json == null)
 			return null;
 
 		foreach (dynamic? jsonData in json!.songs)

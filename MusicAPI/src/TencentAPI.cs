@@ -83,14 +83,53 @@ public class TencentAPI {
 
 	}
 
-
-	public async Task<Lyric?> GetLyric(string id) {
+	public async Task<Song?> GetSong(string id) {
 		Dictionary<string, string> requestParams = new Dictionary<string, string> {
 				{ "format", "json" },
 				{ "platform", "yqq" },
-				{ "songid", id }
+				{ "songmid", id }
 		};
-		
+
+		string? jsonResult = await HttpClient.RequestAsync("GET", "https://c.y.qq.com/v8/fcg-bin/fcg_play_single_song.fcg", requestParams, GetHeaders());
+
+		//Console.WriteLine(jsonResult);
+		dynamic? json = JsonConvert.DeserializeObject(jsonResult ?? "{}");
+		if (string.IsNullOrWhiteSpace(jsonResult) || json == null)
+			return null;
+
+		foreach (dynamic? jsonData in json!.data) {
+			if (jsonData == null)
+				continue;
+
+			List<string> artists = new List<string>();
+
+			foreach (dynamic? artist in jsonData!.singer) {
+				if (artist.name == null)
+					continue;
+				artists.Add((string)artist.name ?? "");
+			}
+
+			string? pid = jsonData!.album!.pmid;
+			return new Song {
+				Id = jsonData!.mid,
+				Name = jsonData!.name,
+				Artists = artists,
+				AlbumName = jsonData!.album!.title,
+				LyricId = jsonData!.mid,
+				Picture = string.IsNullOrWhiteSpace(pid) ? string.Empty : pid
+			};
+		}
+
+		return null;
+	}
+
+	public async Task<SongResource?> GetSongResource(string id, int br = 320) {
+		Dictionary<string, string> requestParams = new Dictionary<string, string> {
+				{ "format", "json" },
+				{ "platform", "yqq" },
+				{ "songmid", id }
+		};
+
 		string? jsonResult = await HttpClient.RequestAsync("GET", "https://c.y.qq.com/v8/fcg-bin/fcg_play_single_song.fcg", requestParams, GetHeaders());
 		Console.WriteLine(jsonResult);
 		//dynamic? json = JsonConvert.DeserializeObject(jsonResult ?? "{}");
@@ -104,5 +143,74 @@ public class TencentAPI {
 		//};
 
 		return null;
+	}
+
+	public async Task<Lyric?> GetLyric(string id) {
+		Dictionary<string, string> requestParams = new Dictionary<string, string> {
+				{ "songmid", id },
+				{ "g_tk", "5381" }
+		};
+
+		string? jsonResult = await HttpClient.RequestAsync("GET", "https://c.y.qq.com/lyric/fcgi-bin/fcg_query_lyric_new.fcg", requestParams, GetHeaders());
+		//Console.WriteLine(jsonResult);
+		if (string.IsNullOrWhiteSpace(jsonResult))
+			return null;
+
+		Match match = Regex.Match(jsonResult!, @"MusicJsonCallback\((.*?)\)");
+		if (!match.Success)
+			return null;
+
+		string? content = match.Groups[1].Value;
+		dynamic? json = JsonConvert.DeserializeObject(content ?? "{}");
+		if (json == null)
+			return null;
+
+		string? originalLyric = json!.lyric!.ToString(), translatedLyric = json!.trans?.ToString();
+		if (string.IsNullOrWhiteSpace(originalLyric))
+			return null;
+
+		originalLyric = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(originalLyric));
+
+		Regex regex = new Regex(@"\[(\d+:\d+.*)\]", RegexOptions.Compiled);
+		return new Lyric {
+			HasTimeInfo = regex.IsMatch(originalLyric),
+			OriginalLyric = originalLyric,
+			TranslatedLyric = String.IsNullOrWhiteSpace(translatedLyric) ? string.Empty : System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(translatedLyric))
+		};
+	}
+
+	public async Task<string?> GetPicture(string id, int px = 300) {
+		Song? songInfo = await GetSong(id);
+		if (songInfo == null)
+			return string.Empty;
+		string? pid = songInfo.Picture;
+		if (string.IsNullOrWhiteSpace(pid))
+			return string.Empty;
+		
+		return $"https://y.qq.com/music/photo_new/T002R{FindClosestValue(px)}x{FindClosestValue(px)}M000{pid}.jpg?max_age=2592000";
+	}
+
+	private static int FindClosestValue(int target) {
+		int[] array = { 58, 68, 300, 500 };
+		int left = 0;
+		int right = array.Length - 1;
+		int closestValue = array[0];
+
+		while (left <= right) {
+			int mid = left + (right - left) / 2;
+
+			if (array[mid] == target)
+				return array[mid];
+
+			if (Math.Abs(array[mid] - target) < Math.Abs(closestValue - target))
+				closestValue = array[mid];
+
+			if (array[mid] < target) 
+				left = mid + 1;
+			else
+				right = mid - 1;
+		}
+
+		return closestValue;
 	}
 }
