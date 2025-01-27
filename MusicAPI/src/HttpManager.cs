@@ -14,11 +14,12 @@ public static class HttpManager
 		string responseBody = string.Empty;
 		if (string.IsNullOrWhiteSpace(url))
 			return string.Empty;
-		if (parameters == null || parameters.Count == 0)
-			return string.Empty;
+		
 
 		switch (method) {
 			case "POST": {
+				if (parameters == null || parameters.Count == 0)
+					return string.Empty;
 				using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, url)) {
 					request.Content = new FormUrlEncodedContent((IEnumerable<KeyValuePair<string, string>>)parameters);
 					foreach (var header in headers) {
@@ -32,11 +33,16 @@ public static class HttpManager
 			}
 
 			case "GET": {
-				var queryString = HttpUtility.ParseQueryString(string.Empty);
-				foreach (var parameter in parameters) {
-					queryString[parameter.Key] = parameter.Value;
+				var urlWithQuery = url;
+				if (parameters != null && parameters.Count > 0) {
+					var queryString = HttpUtility.ParseQueryString(string.Empty);
+					foreach (var parameter in parameters) {
+						queryString[parameter.Key] = parameter.Value;
+					}
+					urlWithQuery = $"{urlWithQuery}?{queryString.ToString()}";
 				}
-				var urlWithQuery = $"{url}?{queryString.ToString()}";
+				
+				//Console.WriteLine(urlWithQuery);
 
 				using (HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, urlWithQuery)) {
 					foreach (var header in headers) {
