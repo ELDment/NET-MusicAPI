@@ -30,8 +30,8 @@ public class Tests
 		Console.WriteLine(songInfo);
 
 		//获取音乐资源
-		//var songResource = await api.GetSongResource(song!.Id);
-		//Console.WriteLine(songResource);
+		var songResource = await api.GetSongResource(song!.Id);
+		Console.WriteLine(songResource);
 
 		//获取音乐歌词
 		var songLyric = await api.GetLyric(song!.Id);
