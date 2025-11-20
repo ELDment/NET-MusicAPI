@@ -11,15 +11,10 @@ public sealed partial class NeteaseApi : IMusicApi, IDisposable
     private readonly bool disposedHttpClient;
     private volatile bool disposed;
 
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNameCaseInsensitive = true
-    };
-
     [GeneratedRegex(@"\[(\d+:\d+.*)\]", RegexOptions.Compiled)]
     private static partial Regex TimeInfoRegex();
 
-    private IReadOnlyDictionary<string, string>? customHeaders;
+    public IReadOnlyDictionary<string, string>? CustomHeaders { get; set; }
 
     public NeteaseApi() : this(null)
     {
@@ -42,15 +37,6 @@ public sealed partial class NeteaseApi : IMusicApi, IDisposable
         }
     }
 
-    /// <summary>
-    /// Gets or sets custom HTTP headers for requests
-    /// </summary>
-    public IReadOnlyDictionary<string, string>? CustomHeaders
-    {
-        get => customHeaders;
-        set => customHeaders = value;
-    }
-
     private Dictionary<string, string> BuildHeaders()
     {
         var headers = new Dictionary<string, string>
@@ -65,9 +51,9 @@ public sealed partial class NeteaseApi : IMusicApi, IDisposable
             ["Content-Type"] = "application/x-www-form-urlencoded"
         };
 
-        if (customHeaders != null)
+        if (CustomHeaders != null)
         {
-            foreach (var (key, value) in customHeaders)
+            foreach (var (key, value) in CustomHeaders)
             {
                 headers[key] = value;
             }

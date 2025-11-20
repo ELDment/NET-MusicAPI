@@ -3,6 +3,11 @@ namespace MusicAPI.Abstractions;
 public interface IMusicApi
 {
     /// <summary>
+    /// Gets or sets custom HTTP headers for requests
+    /// </summary>
+    IReadOnlyDictionary<string, string>? CustomHeaders { get; set; }
+
+    /// <summary>
     /// Search for songs by keyword
     /// </summary>
     /// <param name="keyword">Search keyword</param>

@@ -33,7 +33,7 @@ public static class HttpClientExtensions
         if (method == HttpMethod.Post)
         {
             var request = new HttpRequestMessage(HttpMethod.Post, url);
-            if (parameters.Any())
+            if (parameters?.Any() ?? false)
             {
                 request.Content = new FormUrlEncodedContent(parameters);
             }
@@ -47,7 +47,7 @@ public static class HttpClientExtensions
 
     private static string BuildUrlWithQuery(string url, IReadOnlyDictionary<string, string>? parameters)
     {
-        if (!parameters.Any())
+        if (!(parameters?.Any() ?? false))
         {
             return url;
         }
