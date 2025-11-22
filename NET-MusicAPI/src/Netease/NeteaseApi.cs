@@ -64,7 +64,7 @@ public sealed partial class NeteaseApi : IMusicApi, IDisposable
 
     public async Task<IReadOnlyList<Song>?> SearchAsync(string keyword, int type = 1, int limit = 30, int page = 1, CancellationToken cancellationToken = default)
     {
-        ThrowIfDisposed();
+        ObjectDisposedException.ThrowIf(disposed, this);
         ArgumentException.ThrowIfNullOrWhiteSpace(keyword);
 
         var requestBody = new
@@ -120,7 +120,7 @@ public sealed partial class NeteaseApi : IMusicApi, IDisposable
 
     public async Task<Song?> GetSongAsync(string id, CancellationToken cancellationToken = default)
     {
-        ThrowIfDisposed();
+        ObjectDisposedException.ThrowIf(disposed, this);
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
 
         var requestBody = new
@@ -162,7 +162,7 @@ public sealed partial class NeteaseApi : IMusicApi, IDisposable
 
     public async Task<SongResource?> GetSongResourceAsync(string id, int br = 320, CancellationToken cancellationToken = default)
     {
-        ThrowIfDisposed();
+        ObjectDisposedException.ThrowIf(disposed, this);
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
 
         var requestBody = new
@@ -198,7 +198,7 @@ public sealed partial class NeteaseApi : IMusicApi, IDisposable
 
     public async Task<Lyric?> GetLyricAsync(string id, CancellationToken cancellationToken = default)
     {
-        ThrowIfDisposed();
+        ObjectDisposedException.ThrowIf(disposed, this);
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
 
         var requestBody = new
@@ -236,7 +236,7 @@ public sealed partial class NeteaseApi : IMusicApi, IDisposable
 
     public async Task<string?> GetPictureAsync(string id, int px = 300, CancellationToken cancellationToken = default)
     {
-        ThrowIfDisposed();
+        ObjectDisposedException.ThrowIf(disposed, this);
         var song = await GetSongAsync(id, cancellationToken).ConfigureAwait(false);
 
         if (song == null || string.IsNullOrWhiteSpace(song.Picture))
@@ -262,13 +262,5 @@ public sealed partial class NeteaseApi : IMusicApi, IDisposable
         }
 
         GC.SuppressFinalize(this);
-    }
-
-    private void ThrowIfDisposed()
-    {
-        if (disposed)
-        {
-            throw new ObjectDisposedException(nameof(NeteaseApi));
-        }
     }
 }
