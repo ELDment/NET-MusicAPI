@@ -1,0 +1,16 @@
+# Test Runner for NET-MusicAPI
+# Copy this file to run-tests.ps1 and fill in your credentials
+
+# Get your Spotify credentials from: https://developer.spotify.com/dashboard
+$env:SPOTIFY_CLIENT_ID = "..."
+$env:SPOTIFY_CLIENT_SECRET = "..."
+
+Write-Host "=== NET-MusicAPI Tests ===" -ForegroundColor Yellow
+Write-Host "Spotify Client ID: $env:SPOTIFY_CLIENT_ID" -ForegroundColor Cyan
+Write-Host "Spotify Client Secret: $env:SPOTIFY_CLIENT_SECRET" -ForegroundColor Cyan
+Write-Host ""
+
+# Run all tests
+Set-Location NET-MusicAPI.Tests
+dotnet test --logger "console;verbosity=detailed"
+Set-Location ..
