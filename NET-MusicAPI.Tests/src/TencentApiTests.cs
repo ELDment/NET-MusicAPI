@@ -5,7 +5,7 @@ using MusicAPI.Abstractions;
 namespace MusicAPI.Tests;
 
 [TestFixture]
-public sealed class NeteaseApiTests
+public sealed class TencentApiTests
 {
     private ServiceProvider? serviceProvider;
     private IMusicApi? musicApi;
@@ -18,7 +18,7 @@ public sealed class NeteaseApiTests
     [SetUp]
     public void Setup()
     {
-        serviceProvider = new ServiceCollection().AddNeteaseApi().BuildServiceProvider();
+        serviceProvider = new ServiceCollection().AddTencentApi().BuildServiceProvider();
         musicApi = serviceProvider.GetRequiredService<IMusicApi>();
     }
 
@@ -61,7 +61,7 @@ public sealed class NeteaseApiTests
         Assert.That(song!.Id, Is.EqualTo(songId));
         Assert.That(song.Name, Is.Not.Empty);
         Assert.That(song.Artists, Is.Not.Empty);
-        Assert.That(song.Picture, Is.Not.Empty);
+        Assert.That(song.AlbumName, Is.Not.Empty);
 
         TestContext.Out.WriteLine($"Song details: {song.Name}");
         TestContext.Out.WriteLine($"Picture URL: {song.Picture}");
@@ -129,7 +129,7 @@ public sealed class NeteaseApiTests
         var songId = searchResults!.First().Id;
         var pictureUrl = await musicApi.GetPictureAsync(songId, px: TestPictureSize);
         Assert.That(pictureUrl, Is.Not.Null.And.Not.Empty);
-        Assert.That(pictureUrl, Does.Contain($"param={TestPictureSize}y{TestPictureSize}"));
+        Assert.That(pictureUrl, Does.Contain($"{TestPictureSize}x{TestPictureSize}"));
 
         TestContext.Out.WriteLine($"Picture URL: {pictureUrl}");
     }
