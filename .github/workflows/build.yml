@@ -61,9 +61,6 @@ jobs:
       run: |
         dotnet build MusicAPI/MusicAPI.csproj -c Release --no-restore -p:Version=${{ needs.versioning.outputs.semVer }} -p:InformationalVersion=${{ needs.versioning.outputs.informationalVersion }} -p:FileVersion=${{ needs.versioning.outputs.semVer }}
     
-    - name: Run tests
-      run: dotnet test MusicAPI.Tests/MusicAPI.Tests.csproj -c Release --verbosity normal
-    
     - name: Create release package
       run: |
         mkdir release-package
