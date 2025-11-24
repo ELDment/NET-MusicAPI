@@ -1,6 +1,13 @@
 # Test Runner for NET-MusicAPI
 # Copy this file to run-tests.ps1 and fill in your credentials
 
+param(
+    [Parameter(Mandatory=$false)]
+    [Alias("p")]
+    [ValidateSet("netease", "tencent", "spotify", "")]
+    [string]$Platform = ""
+)
+
 # Get your Spotify credentials from: https://developer.spotify.com/dashboard
 $env:SPOTIFY_CLIENT_ID = "..."
 $env:SPOTIFY_CLIENT_SECRET = "..."
@@ -10,7 +17,26 @@ Write-Host "Spotify Client ID: $env:SPOTIFY_CLIENT_ID" -ForegroundColor Cyan
 Write-Host "Spotify Client Secret: $env:SPOTIFY_CLIENT_SECRET" -ForegroundColor Cyan
 Write-Host ""
 
-# Run all tests
-Set-Location NET-MusicAPI.Tests
-dotnet test --logger "console;verbosity=detailed"
-Set-Location ..
+# Determine test filter
+if ($Platform -ne "") {
+    $testClass = switch ($Platform.ToLower()) {
+        "netease" { "NeteaseApiTests" }
+        "tencent" { "TencentApiTests" }
+        "spotify" { "SpotifyApiTests" }
+    }
+    Write-Host "Running tests for platform: $Platform ($testClass)" -ForegroundColor Green
+    Write-Host ""
+    
+    # Run tests with filter
+    Set-Location NET-MusicAPI.Tests
+    dotnet test --filter "FullyQualifiedName~$testClass" --logger "console;verbosity=detailed"
+    Set-Location ..
+} else {
+    Write-Host "Running all tests" -ForegroundColor Green
+    Write-Host ""
+    
+    # Run all tests
+    Set-Location NET-MusicAPI.Tests
+    dotnet test --logger "console;verbosity=detailed"
+    Set-Location ..
+}

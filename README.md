@@ -99,13 +99,13 @@ using MusicAPI.Extensions;
 using MusicAPI.Abstractions;
 
 // 注册服务
-// Netease Cloud Music
+// 网易云
 builder.Services.AddNeteaseApi();
 
-// QQ Music (Tencent)
+// QQ（腾讯）音乐
 builder.Services.AddTencentApi();
 
-// Spotify (Temporarily suspended)
+// Spotify
 builder.Services.AddSpotifyApi();
 
 // 在控制器或服务中使用
