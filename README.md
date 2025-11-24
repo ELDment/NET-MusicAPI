@@ -4,18 +4,13 @@
 [![C#](https://img.shields.io/badge/C%23-12-green.svg)](https://docs.microsoft.com/en-us/dotnet/csharp/)
 [![License](https://img.shields.io/badge/license-MIT-orange.svg)](LICENSE)
 
-现代化的 .NET 音乐 API 库，支持网易云音乐。使用 .NET 10 和 C# 12 最新特性构建，提供简洁优雅的 API 接口。
+现代化的 .NET 音乐 API 库，支持网易云音乐、QQ 音乐和 Spotify。使用 .NET 10 和 C# 12 最新特性构建，提供简洁优雅的 API 接口。
 
-## 📋 环境要求
+## ✨ 支持平台
 
-- .NET 10.0
-- C# 12
-
-### NuGet 包依赖
-
-- `Microsoft.Extensions.Http` (≥10.0.0)
-- `Microsoft.Extensions.DependencyInjection.Abstractions` (≥10.0.0)
-- `System.Text.Json` (≥10.0.0)
+- ✅ **网易云音乐 (Netease Cloud Music)** - 完整支持
+- ✅ **QQ 音乐 (Tencent Music)** - 完整支持
+- ⚠️ **Spotify** - 暂时暂停（受限于 API 限制）
 
 ## 🚀 快速开始
 
@@ -75,6 +70,28 @@ var pictureUrl = await api.GetPictureAsync(songs.First().Id, px: 300);
 Console.WriteLine($"封面链接：{pictureUrl}");
 ```
 
+#### Spotify 配置
+
+⚠️ *由于严格的API限制，暂时暂停接口支持*
+
+```csharp
+// 方式 1: 构造函数传参
+using var api = new SpotifyApi("...", "...");
+
+// 方式 2: 环境变量
+Environment.SetEnvironmentVariable("SPOTIFY_CLIENT_ID", "...");
+Environment.SetEnvironmentVariable("SPOTIFY_CLIENT_SECRET", "...");
+using var api = new SpotifyApi();
+
+// 方式 3: 自定义 Headers
+using var api = new SpotifyApi();
+api.CustomHeaders = new Dictionary<string, string>
+{
+    ["SpotifyClientId"] = "...",
+    ["SpotifyClientSecret"] = "..."
+};
+```
+
 #### 依赖注入（ASP.NET Core）
 
 ```csharp
@@ -82,7 +99,14 @@ using MusicAPI.Extensions;
 using MusicAPI.Abstractions;
 
 // 注册服务
+// Netease Cloud Music
 builder.Services.AddNeteaseApi();
+
+// QQ Music (Tencent)
+builder.Services.AddTencentApi();
+
+// Spotify (Temporarily suspended)
+builder.Services.AddSpotifyApi();
 
 // 在控制器或服务中使用
 public class MusicController : ControllerBase
@@ -142,6 +166,8 @@ var songs = await api.SearchAsync("裙摆与向日葵花");
 
 ## 🧪 测试
 
+### 运行单元测试
+
 ```powershell
 # 运行所有测试
 dotnet test
@@ -151,6 +177,17 @@ dotnet test --logger "console;verbosity=detailed"
 
 # 运行特定测试
 dotnet test --filter "FullyQualifiedName~NeteaseApiTests"
+```
+
+### 使用测试脚本
+
+```powershell
+.\run-tests.ps1
+
+# 测试特定平台
+.\run-tests.ps1 -Platform netease
+.\run-tests.ps1 -Platform tencent
+.\run-tests.ps1 -Platform spotify
 ```
 
 ## 🤝 贡献
@@ -170,4 +207,4 @@ dotnet test --filter "FullyQualifiedName~NeteaseApiTests"
 
 ---
 
-**关键词**: 网易云音乐API, Netease Cloud Music API, .NET Music API, C# Music Library, 音乐搜索, 歌词获取, 歌曲直链
+**关键词**: .NET Music API | C# Music Library | Netease Cloud Music | Tencent QQ Music | Spotify
