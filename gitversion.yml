@@ -1,0 +1,21 @@
+mode: Mainline
+branches:
+  main:
+    regex: ^main$
+    increment: Patch
+    is-mainline: true
+    is-release-branch: true
+  develop:
+    regex: ^develop$
+    increment: Minor
+    tag: beta
+    is-release-branch: false
+    is-mainline: false
+    source-branches: [main]
+ignore:
+  sha: []
+commit-message-incrementing: Enabled
+major-version-bump-message: '\+semver:\s?(breaking|major)'
+minor-version-bump-message: '\+semver:\s?(feature|minor)'
+patch-version-bump-message: '\+semver:\s?(fix|patch)'
+tag-prefix: ''
