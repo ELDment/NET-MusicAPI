@@ -9,6 +9,7 @@ namespace MusicAPI.Spotify;
 /// Gets metadata from Spotify and generates YouTube search URLs
 /// Note: This returns YouTube search URLs, not direct download links
 /// </summary>
+[Obsolete("Limited functionality due to Spotify's strict API restrictions.")]
 public sealed class SpotifyApi : IMusicApi, IDisposable
 {
     private readonly string? spotifyClientId;

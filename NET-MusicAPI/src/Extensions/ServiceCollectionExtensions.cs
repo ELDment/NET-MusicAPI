@@ -65,6 +65,7 @@ public static class ServiceCollectionExtensions
     /// <summary>
     /// Adds Spotify Music API services (Spotify metadata + YouTube audio search)
     /// </summary>
+    [Obsolete("Limited functionality due to Spotify's strict API restrictions.")]
     public static IServiceCollection AddSpotifyApi(this IServiceCollection services)
     {
         ArgumentNullException.ThrowIfNull(services);
@@ -80,6 +81,7 @@ public static class ServiceCollectionExtensions
     /// <summary>
     /// Adds Spotify Music API as a singleton
     /// </summary>
+    [Obsolete("Limited functionality due to Spotify's strict API restrictions.")]
     public static IServiceCollection AddSpotifyApiSingleton(this IServiceCollection services)
     {
         ArgumentNullException.ThrowIfNull(services);
