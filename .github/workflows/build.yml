@@ -51,20 +51,19 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '10.0.x'
-        dotnet-quality: 'preview'
+        dotnet-version: '8.0.x'
     
     - name: Restore dependencies
-      run: dotnet restore MusicAPI/MusicAPI.csproj
+      run: dotnet restore NET-MusicAPI/NET-MusicAPI.csproj
     
     - name: Build
       run: |
-        dotnet build MusicAPI/MusicAPI.csproj -c Release --no-restore -p:Version=${{ needs.versioning.outputs.semVer }} -p:InformationalVersion=${{ needs.versioning.outputs.informationalVersion }} -p:FileVersion=${{ needs.versioning.outputs.semVer }}
+        dotnet build NET-MusicAPI/NET-MusicAPI.csproj -c Release --no-restore -p:Version=${{ needs.versioning.outputs.semVer }} -p:InformationalVersion=${{ needs.versioning.outputs.informationalVersion }} -p:FileVersion=${{ needs.versioning.outputs.semVer }}
     
     - name: Create release package
       run: |
         mkdir release-package
-        Copy-Item -Path MusicAPI/bin/Release/net10.0/* -Destination release-package/ -Recurse
+        Copy-Item -Path NET-MusicAPI/bin/Release/net8.0/* -Destination release-package/ -Recurse
         Compress-Archive -Path release-package/* -DestinationPath NET-MusicAPI-v${{ needs.versioning.outputs.semVer }}.zip
     
     - name: Upload release package
